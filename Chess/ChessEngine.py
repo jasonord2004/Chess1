@@ -27,6 +27,8 @@ class GameState():
         self.moveLog = []
         self.whiteKingLocation = (7, 4)
         self.blackKingLocation = (0, 4)
+        self.checkmate = False
+        self.stalemate = False
         self.inCheck = False
         self.pins = []
         self.checks = []
@@ -191,7 +193,13 @@ class GameState():
         #prints list of valid moves
         # for i in range(len(moves)):
         #     print("VALID: ", moves[i].moveID)
-
+        if moves == []:
+            if self.inCheck:
+                self.checkmate = True
+                print("CHECKM")
+            else:
+                self.stalemate = True
+                print("STALE")
         return moves  # for now, not worrying about checks
 
     '''
@@ -260,7 +268,7 @@ class GameState():
                 if not piecePinned or pinDirection == (-1, 0):
                     if r - 1 == 0:
                         pawnPromotion = True
-                        moves.append(Move((r, c), (r-1, c), self.board), pawnPromotion=True)
+                        moves.append(Move((r, c), (r-1, c), self.board, pawnPromotion))
                     else:
                         moves.append(Move((r, c), (r - 1, c), self.board))
                     if r == 6 and self.board[r-2][c] == "--": #2 square pawn advance
