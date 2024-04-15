@@ -188,8 +188,9 @@ class GameState():
         else:
             self.getCastleMoves(self.blackKingLocation[0], self.blackKingLocation[1], moves)
 
-        for i in range(len(moves)):
-            print("VALID: ", moves[i].moveID)
+        #prints list of valid moves
+        # for i in range(len(moves)):
+        #     print("VALID: ", moves[i].moveID)
 
         return moves  # for now, not worrying about checks
 
