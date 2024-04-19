@@ -54,10 +54,10 @@ class GameState():
             elif move.pieceMoved == "bK":
                 self.blackKingLocation = (move.endRow, move.endCol)
 
-        #pawn promotion (automatically makes it queen for now)
+        #pawn promotion
         if move.isPawnPromotion:
             promotedPiece = input("Promote to Q, R, B, or N:")
-            self.board[move.endRow][move.endCol] =  move.pieceMoved[0] + promotedPiece
+            self.board[move.endRow][move.endCol] =  move.pieceMoved[0] + promotedPiece.upper()
 
         #update enpassantPossible variable
         if move.pieceMoved[1] == 'p' and abs(move.startRow - move.endRow) == 2: #only on 2 square pawn advances
