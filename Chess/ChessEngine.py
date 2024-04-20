@@ -155,9 +155,10 @@ class GameState():
             kingCol = self.blackKingLocation[1]
         if self.inCheck:
             # if there is only 1 piece causing check, then you can either move the king or block check
+            print("checks: ", len(self.checks))
             if len(self.checks) == 1:
                 moves = self.getAllPossibleMoves()
-                #to block a check, an ally piece must be move into a square between the enemy piece and the king
+                #to block a check, an ally piece must be moved into a square between the enemy piece and the king
                 check = self.checks[0]
                 checkRow = check[0]
                 checkCol = check[1]
@@ -191,16 +192,16 @@ class GameState():
             self.getCastleMoves(self.blackKingLocation[0], self.blackKingLocation[1], moves)
 
         #prints list of valid moves
-        # for i in range(len(moves)):
-        #     print("VALID: ", moves[i].moveID)
+        #for i in range(len(moves)):
+            #print("VALID: ", moves[i].moveID)
         if moves == []:
             if self.inCheck:
                 self.checkmate = True
-                print("CHECKM")
+                #print("CHECK")
             else:
                 self.stalemate = True
-                print("STALE")
-        return moves  # for now, not worrying about checks
+                #print("STALE")
+        return moves
 
     '''
     Determine if the current player is in check
@@ -703,16 +704,19 @@ class GameState():
                             break
                 else: #out of the board area
                     break
-                #check for knight checks
-                knightMoves = {(-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1)}
-                for m in knightMoves:
-                    endRow = startRow + m[0]
-                    endCol = startCol + m[1]
-                    if 0 <= endRow < 8 and 0 <= endCol < 8:
-                        endPiece = self.board[endRow][endCol]
-                        if endPiece[0] == enemyColor and endPiece[1] == 'N': #there is an enemy knight attacking the king
-                            inCheck = True
-                            checks.append((endRow, endCol, m[0], m[1]))
+        #check for knight checks
+        knightMoves = {(-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1)}
+        for m in knightMoves:
+            endRow = startRow + m[0]
+            endCol = startCol + m[1]
+            #print(startRow, startCol, m[0], m[1])
+            if 0 <= endRow < 8 and 0 <= endCol < 8:
+                endPiece = self.board[endRow][endCol]
+                if endPiece[0] == enemyColor and endPiece[1] == 'N': #there is an enemy knight attacking the king
+                    inCheck = True
+                    checks.append((endRow, endCol, m[0], m[1]))
+                    #print(endRow, endCol, m[0], m[1])
+        #print("Checks: ", len(self.checks))
         return inCheck, pins, checks
 
 class CastleRights():
