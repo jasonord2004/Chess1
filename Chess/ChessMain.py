@@ -149,7 +149,7 @@ Draw the squares on the board. Must call this function before the pieces.
 
 def drawBoard(screen):
     global colors
-    colors = [p.Color("white"), p.Color("gray")]
+    colors = [p.Color(238, 238, 210), p.Color(118, 150, 86)]
     for r in range(DIMENSION):
         for c in range(DIMENSION):
             color = colors[((r + c) % 2)]
