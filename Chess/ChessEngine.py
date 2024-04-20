@@ -59,13 +59,13 @@ class GameState():
             promotedPiece = input("Promote to Q, R, B, or N:")
             self.board[move.endRow][move.endCol] =  move.pieceMoved[0] + promotedPiece.upper()
 
-        #update enpassantPossible variable
+        #enpassant
         if move.pieceMoved[1] == 'p' and abs(move.startRow - move.endRow) == 2: #only on 2 square pawn advances
             self.enpassantPossible = ((move.startRow + move.endRow)//2, move.endCol)
         else:
             self.enpassantPossible = ()
 
-        # enpassant move
+        #enpassant move
         if move.isEnpassantMove:
             self.board[move.startRow][move.endCol] = "--"  # capturing the pawn
 
@@ -185,8 +185,8 @@ class GameState():
 
         if self.whiteToMove:
             self.getCastleMoves(self.whiteKingLocation[0], self.whiteKingLocation[1], moves)
-            if len(moves) != 0 and moves[len(moves)-1].isCastleMove:
-                print("CASTLE??: ", moves[len(moves)-1].moveID)
+            # if len(moves) != 0 and moves[len(moves)-1].isCastleMove:
+            #     print("CASTLE??: ", moves[len(moves)-1].moveID)
         else:
             self.getCastleMoves(self.blackKingLocation[0], self.blackKingLocation[1], moves)
 
