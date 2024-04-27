@@ -83,14 +83,18 @@ class GameState():
         self.castleRightsLog.append(CastleRights(self.currentCastlingRights.wks, self.currentCastlingRights.bks,
                                              self.currentCastlingRights.wqs, self.currentCastlingRights.bqs))
 
+
     '''
     Undo the last move made
     '''
     def undoMove(self):
         if len(self.moveLog) != 0:  # make sure that there is a move to undo
             move = self.moveLog.pop()
+            #print("UNDO: ", move.pieceMoved, move.moveID, move.endRow, move.endCol)
             self.board[move.startRow][move.startCol] = move.pieceMoved
+            #print(move.pieceMoved)
             self.board[move.endRow][move.endCol] = move.pieceCaptured
+            #print("UNDO CAPTURE: ", move.pieceCaptured, move.endRow, move.endCol)
             self.whiteToMove = not self.whiteToMove  # switch turns back
             # update king's location
             if move.pieceMoved == "wK":
@@ -99,11 +103,16 @@ class GameState():
                 self.blackKingLocation = (move.startRow, move.startCol)
             #undo en passant
             if move.isEnpassantMove:
+                #print("PASSANT")
                 self.board[move.endRow][move.endCol] = "--" #leave landing square blank
-                self.board[move.startRow][move.startCol] = move.pieceCaptured
+                self.board[move.startRow][move.startCol] = move.pieceMoved
+                if not self.whiteToMove:
+                    self.board[move.endRow-1][move.endCol] = move.pieceCaptured
+                else:
+                    self.board[move.endRow + 1][move.endCol] = move.pieceCaptured
                 self.enpassantPossible = (move.endRow, move.endCol)
             #undo a 2 square pawn advance
-            if move.pieceMoved[1] == 'p' and abs(move.startRow - move.endRow) == 2:
+            if move.pieceCaptured[1] == 'p' and abs(move.startRow - move.endRow) == 2:
                 self.enpassantPossible = ()
             #undo castling rights
             self.castleRightsLog.pop() #get rid of the new castle rights from the move we are undoing
@@ -155,7 +164,7 @@ class GameState():
             kingCol = self.blackKingLocation[1]
         if self.inCheck:
             # if there is only 1 piece causing check, then you can either move the king or block check
-            print("checks: ", len(self.checks))
+            #print("checks: ", len(self.checks))
             if len(self.checks) == 1:
                 moves = self.getAllPossibleMoves()
                 #to block a check, an ally piece must be moved into a square between the enemy piece and the king
@@ -191,9 +200,9 @@ class GameState():
         else:
             self.getCastleMoves(self.blackKingLocation[0], self.blackKingLocation[1], moves)
 
-        #prints list of valid moves
-        #for i in range(len(moves)):
-            #print("VALID: ", moves[i].moveID)
+        # prints list of valid moves
+        # for i in range(len(moves)):
+        #     print("VALID: ", moves[i].moveID)
         if moves == []:
             if self.inCheck:
                 self.checkmate = True
@@ -328,8 +337,6 @@ class GameState():
                             moves.append(Move((r, c), (r + 1, c + 1), self.board))
                 if (r + 1, c + 1) == self.enpassantPossible:
                     moves.append(Move((r, c), (r + 1, c + 1), self.board, isEnpassantMove=True))
-
-        #add pawn promotions later
 
     '''
     Get all the rook moves for the pawn located at row, col, and add these moves to the list
@@ -638,7 +645,7 @@ class GameState():
         if self.board[r][c+1] == '--' and self.board[r][c+2] == '--':
             if not self.squareUnderAttack(r, c+1) and not self.squareUnderAttack(r, c+2):
                 moves.append(Move((r, c), (r, c+2), self.board, isCastleMove = True))
-                print("CASTLE: ", moves[len(moves)-1].moveID)
+                #print("CASTLE: ", moves[len(moves)-1].moveID)
 
     def getQueensideCastleMoves(self, r, c, moves):
         if self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3] == '--':

@@ -43,7 +43,7 @@ def main():
     playerClicks = [] #keep track of player clicks (two tuples: [(6, 4), (4, 4])
     gameOver = False
     playerOne = True #If a human is playing white, then this will be True. If an AI is playing, then False
-    playerTwo = True #Same but for black pieces
+    playerTwo = False #Same but for black pieces
     while running:
         humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
         for e in p.event.get():
@@ -51,6 +51,7 @@ def main():
                 running = False
             #mouse handler
             elif e.type == p.MOUSEBUTTONDOWN:
+                #print("PLAYER MOVE:")
                 if not gameOver and humanTurn:
                     location = p.mouse.get_pos()  # (x, y) location of mouse
                     col = location[0]//SQ_SIZE  # Uses double divides // to make sure it is rounded
@@ -69,6 +70,7 @@ def main():
                                 gs.makeMove(validMoves[i])
                                 moveMade = True
                                 animate = True
+                                #print("Piece: ", validMoves[i].pieceMoved, validMoves[i].moveID)
                                 sqSelected = () #reset user clicks
                                 playerClicks = []
                         if not moveMade:
@@ -89,8 +91,9 @@ def main():
 
         #AI move finder
         if not gameOver and not humanTurn:
-            #AIMove = ChessAI.findRandomMove(validMoves)  #The AI will make random moves
-            AIMove = ChessAI.findBestMove(gs, validMoves)  #The AI will make the best moves based only on material
+            # #AIMove = ChessAI.findRandomMove(validMoves)  #The AI will make random moves
+            # AIMove = ChessAI.greedyAlgo(gs, validMoves)  #The AI will make the best moves based only on material
+            AIMove = ChessAI.findBestMove(gs, validMoves)
             if AIMove is None:
                 AIMove = ChessAI.findRandomMove(validMoves)
             gs.makeMove(AIMove)
