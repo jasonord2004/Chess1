@@ -3,7 +3,7 @@ This is our main driver file. It will be responsible for handling user input and
 """
 
 import pygame as p
-from Chess1.Chess import ChessEngine, ChessAI
+from Checkers.Chess import CheckersEngine, CheckersAI
 
 WIDTH = HEIGHT = 512# 400 is also good
 DIMENSION = 8  # Chessboard dimensions are 8x8
