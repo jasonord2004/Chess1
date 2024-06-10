@@ -3,7 +3,7 @@ This is our main driver file. It will be responsible for handling user input and
 """
 
 import pygame as p
-from Checkers.Checkers import CheckersEngine
+from Checkers.Checkers import CheckersEngine, CheckersAI
 
 WIDTH = HEIGHT = 512# 400 is also good
 DIMENSION = 8  # Chessboard dimensions are 8x8
@@ -44,8 +44,10 @@ def main():
     gameOver = False
     playerOne = True #If a human is playing white, then this will be True. If an AI is playing, then False
     playerTwo = False #Same but for black pieces
+    drawGameState(screen, gs)  # draws the screen
+
     while running:
-        '''
+        
         humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
         for e in p.event.get():
             if e.type == p.QUIT:
@@ -107,9 +109,9 @@ def main():
             validMoves = gs.getValidMoves()
             moveMade = False
             animate = False
-        '''
-        drawGameState(screen, gs)  # draws the screen
-        '''
+
+        #drawGameState(screen, gs)  # draws the screen
+
         if gs.checkmate:
             gameOver = True
             if gs.whiteToMove:
@@ -119,9 +121,10 @@ def main():
         elif gs.stalemate:
             gameOver = True
             drawText(screen, 'Stalemate')
-        '''
-        clock.tick(MAX_FPS)
-        #p.display.flip()
+        
+        #clock.tick(MAX_FPS)
+        p.display.flip()
+
 
 '''
 Highlight square selected and moves for piece selected
@@ -150,7 +153,7 @@ Responsible for all the graphics within a current game state
 def drawGameState(screen, gs):
     drawBoard(screen)  # draw squares on the board
     #highlightSquares(screen, gs, validMoves, sqSelected)
-    #drawPieces(screen, gs.board)  # draw pieces on top of those squares
+    drawPieces(screen, gs.board)  # draw pieces on top of those squares
 
 
 '''
