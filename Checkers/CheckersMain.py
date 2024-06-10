@@ -112,15 +112,15 @@ def main():
 
         #drawGameState(screen, gs)  # draws the screen
 
-        if gs.checkmate:
-            gameOver = True
-            if gs.whiteToMove:
-                drawText(screen, 'Black wins by checkmate')
-            else:
-                drawText(screen, 'White wins by checkmate')
-        elif gs.stalemate:
-            gameOver = True
-            drawText(screen, 'Stalemate')
+        #if gs.checkmate:
+            #gameOver = True
+            #if gs.redToMove:
+                #drawText(screen, 'Black wins by checkmate')
+            #else:
+                #drawText(screen, 'White wins by checkmate')
+        #elif gs.stalemate:
+            #gameOver = True
+            #drawText(screen, 'Stalemate')
         
         #clock.tick(MAX_FPS)
         p.display.flip()
