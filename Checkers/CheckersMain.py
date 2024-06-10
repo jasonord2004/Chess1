@@ -3,7 +3,7 @@ This is our main driver file. It will be responsible for handling user input and
 """
 
 import pygame as p
-from Checkers.Chess import CheckersEngine, CheckersAI
+from Checkers.Checkers import CheckersEngine
 
 WIDTH = HEIGHT = 512# 400 is also good
 DIMENSION = 8  # Chessboard dimensions are 8x8
@@ -17,10 +17,10 @@ Initialize a global dictionary of images. This will be called exactly once in th
 
 
 def loadImages():
-    pieces = ['wp', 'wR', 'wN', 'wB', 'wQ', 'wK', 'bp', 'bR', 'bN', 'bB', 'bQ', 'bK']
+    pieces = ['rc', 'bc']
     for piece in pieces:  # Will set piece equal to the first element in pieces and iterate until completion or error
-        IMAGES[piece] = p.transform.scale(p.image.load("Chess images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
-    # Note: We can access an image by saying 'IMAGES['wp']'
+        IMAGES[piece] = p.transform.scale(p.image.load("Checkers images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+    # Note: We can access an image by saying 'IMAGES['wc']'
     # p.transform.scale will make sure each image is uniformly scaled to the entire size of the chessboard square
 
 
@@ -33,8 +33,8 @@ def main():
     screen = p.display.set_mode((WIDTH, HEIGHT))
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
-    gs = ChessEngine.GameState()  # Calls the constructor ChessEngine
-    validMoves = gs.getValidMoves()
+    gs = CheckersEngine.GameState()  # Calls the constructor CheckersEngine
+    #validMoves = gs.getValidMoves()
     moveMade = False #flag variable for when a move is made
     animate = False #flag variable for when we should animate a move
     loadImages()  # only do this once, before the while loop
@@ -45,6 +45,7 @@ def main():
     playerOne = True #If a human is playing white, then this will be True. If an AI is playing, then False
     playerTwo = False #Same but for black pieces
     while running:
+        '''
         humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
         for e in p.event.get():
             if e.type == p.QUIT:
@@ -63,7 +64,7 @@ def main():
                         sqSelected = (row, col)
                         playerClicks.append(sqSelected) #append for both 1st and 2nd clicks
                     if len(playerClicks) == 2: #after 2nd click
-                        move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
+                        move = CheckersEngine.Move(playerClicks[0], playerClicks[1], gs.board)
                         print(move.getChessNotation())
                         for i in range(len(validMoves)): #iterates through all the validMoves
                             if move == validMoves[i]: #if our current move is equal to the current valid move
@@ -82,7 +83,7 @@ def main():
                     moveMade = True
                     animate = False
                 if e.key == p.K_r: #resets the board when 'r' is pressed
-                    gs = ChessEngine.GameState()
+                    gs = CheckersEngine.GameState()
                     validMoves = gs.getValidMoves()
                     sqSelected = ()
                     playerClicks = []
@@ -91,11 +92,11 @@ def main():
 
         #AI move finder
         if not gameOver and not humanTurn:
-            # #AIMove = ChessAI.findRandomMove(validMoves)  #The AI will make random moves
-            # AIMove = ChessAI.greedyAlgo(gs, validMoves)  #The AI will make the best moves based only on material
-            AIMove = ChessAI.findBestMove(gs, validMoves)
+            # #AIMove = CheckersAI.findRandomMove(validMoves)  #The AI will make random moves
+            # AIMove = CheckersAI.greedyAlgo(gs, validMoves)  #The AI will make the best moves based only on material
+            AIMove = CheckersAI.findBestMove(gs, validMoves)
             if AIMove is None:
-                AIMove = ChessAI.findRandomMove(validMoves)
+                AIMove = CheckersAI.findRandomMove(validMoves)
             gs.makeMove(AIMove)
             moveMade = True
             animate = True
@@ -106,9 +107,9 @@ def main():
             validMoves = gs.getValidMoves()
             moveMade = False
             animate = False
-
-        drawGameState(screen, gs, validMoves, sqSelected)  # draws the screen
-
+        '''
+        drawGameState(screen, gs)  # draws the screen
+        '''
         if gs.checkmate:
             gameOver = True
             if gs.whiteToMove:
@@ -118,12 +119,13 @@ def main():
         elif gs.stalemate:
             gameOver = True
             drawText(screen, 'Stalemate')
-
+        '''
         clock.tick(MAX_FPS)
-        p.display.flip()
+        #p.display.flip()
 
 '''
 Highlight square selected and moves for piece selected
+'''
 '''
 def highlightSquares(screen, gs, validMoves, sqSelected):
     if sqSelected != (): #square is not empty
@@ -139,14 +141,16 @@ def highlightSquares(screen, gs, validMoves, sqSelected):
             for move in validMoves:
                 if move.startRow == r and move.startCol == c:
                     screen.blit(s, (move.endCol*SQ_SIZE, move.endRow*SQ_SIZE))
+'''
 
 '''
 Responsible for all the graphics within a current game state
 '''
-def drawGameState(screen, gs, validMoves, sqSelected):
+#def drawGameState(screen, gs, validMoves, sqSelected):
+def drawGameState(screen, gs):
     drawBoard(screen)  # draw squares on the board
-    highlightSquares(screen, gs, validMoves, sqSelected)
-    drawPieces(screen, gs.board)  # draw pieces on top of those squares
+    #highlightSquares(screen, gs, validMoves, sqSelected)
+    #drawPieces(screen, gs.board)  # draw pieces on top of those squares
 
 
 '''

@@ -11,17 +11,16 @@ class GameState():
         # The second character represents the type of the piece 'K' for king, etc.
         # "--" represents an empty space with no piece.
         self.board = [
-            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
-            ["bp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"],
+            ["--", "bc", "--", "bc", "--", "bc", "--", "bc"],
+            ["bc", "--", "bc", "--", "bc", "--", "bc", "--"],
+            ["--", "bc", "--", "bc", "--", "bc", "--", "bc"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
-            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"],
+            ["rc", "--", "rc", "--", "rc", "--", "rc", "--"],
+            ["--", "rc", "--", "rc", "--", "rc", "--", "rc"],
+            ["rc", "--", "rc", "--", "rc", "--", "rc", "--"],
         ]
-        self.moveFunctions = {'p': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves,
-                              'B': self.getBishopMoves, 'Q': self.getQueenMoves, 'K': self.getKingMoves}
+        #self.moveFunctions = {'p': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves,'B': self.getBishopMoves, 'Q': self.getQueenMoves, 'K': self.getKingMoves}
 
         self.whiteToMove = True
         self.moveLog = []
