@@ -38,18 +38,22 @@ class GameState():
     def makeMove(self, move):
         if self.board[move.startRow][move.startCol] != '--':
             self.board[move.startRow][move.startCol] = "--"
+            if move.pieceCaptured != "": #FIX
+                self.board[move.capturedRow][move.capturedCol] = "--"
+                print("CAPTURED: ", move.capturedRow, move.capturedCol, move.pieceCaptured)
+
             self.board[move.endRow][move.endCol] = move.pieceMoved
             self.moveLog.append(move)  # log the move so we can undo it later
             self.redToMove = not self.redToMove  # switch turns
 
-        #pawn promotion
+        #piece promotion FIX
         #if move.isPawnPromotion:
             #promotedPiece = input("Promote to Q, R, B, or N:")
             #self.board[move.endRow][move.endCol] =  move.pieceMoved[0] + promotedPiece.upper()
 
 
     '''
-    Undo the last move made
+    Undo the last move made  FIX
     '''
     def undoMove(self):
         if len(self.moveLog) != 0:  # make sure that there is a move to undo
@@ -73,8 +77,8 @@ class GameState():
         moves = self.getAllPossibleMoves()
 
         # prints list of valid moves
-        # for i in range(len(moves)):
-        #     print("VALID: ", moves[i].moveID)
+        for i in range(len(moves)):
+            print("VALID: ", moves[i].startRow, moves[i].startCol, moves[i].endRow, moves[i].endCol)
         #if moves == []:
             #if self.inCheck:
                 #self.checkmate = True
@@ -117,69 +121,72 @@ class GameState():
     def getCheckerMoves(self, r, c, moves): # FIX METHOD
 
         if self.redToMove: #red checker moves
-            if self.board[r-1][c] == "--": #1 square white pawn advance  FIX
-                if not piecePinned or pinDirection == (-1, 0):
+            if c-1 >= 0:
+                if self.board[r-1][c-1] == "--": #red piece can advance left
                     if r - 1 == 0:
-                        pawnPromotion = True
-                        moves.append(Move((r, c), (r-1, c), self.board, pawnPromotion))
+                        piecePromotion = True
+                        moves.append(Move((r, c), (r-1, c-1), self.board, piecePromotion))
                     else:
-                        moves.append(Move((r, c), (r - 1, c), self.board))
-                    if r == 6 and self.board[r-2][c] == "--": #2 square pawn advance
-                        moves.append(Move((r, c), (r-2, c), self.board))
-
-            #captures
-            if c-1 >= 0: #captures to the left
-                if self.board[r-1][c-1][0] == 'b': #enemy piece to capture
-                    if not piecePinned or pinDirection == (-1, -1):
-                        if r - 1 == 0:
-                            pawnPromotion = True
-                            moves.append(Move((r, c), (r-1, c-1), self.board, pawnPromotion=True))
-                        else:
-                            moves.append(Move((r, c), (r - 1, c - 1), self.board))
-                if(r-1, c-1) == self.enpassantPossible:
-                    moves.append(Move((r, c), (r-1, c-1), self.board, isEnpassantMove=True))
-            if c+1 <= 7: #captures to the right
-                if self.board[r-1][c+1][0] == 'b': #enemy piece to capture
-                    if not piecePinned or pinDirection == (-1, 1):
-                        if r - 1 == 0:
-                            pawnPromotion = True
-                            moves.append(Move((r, c), (r-1, c+1), self.board, pawnPromotion=True))
-                        else:
-                            moves.append(Move((r, c), (r - 1, c + 1), self.board))
-                if (r - 1, c + 1) == self.enpassantPossible:
-                    moves.append(Move((r, c), (r - 1, c + 1), self.board, isEnpassantMove=True))
-
-        else: #black pawn moves
-            if self.board[r+1][c] == "--": #1 square black pawn advance
-                if not piecePinned or pinDirection == (1, 0):
-                    if r + 1 == 0:
-                        pawnPromotion = True
-                        moves.append(Move((r, c), (r+1, c), self.board, pawnPromotion=True))
+                        moves.append(Move((r, c), (r-1, c-1), self.board))
+            if c+1 <= 7:
+                if self.board[r-1][c+1] == "--": #red piece can advance right
+                    if r - 1 == 0:
+                        piecePromotion = True
+                        moves.append(Move((r, c), (r-1, c+1), self.board, piecePromotion))
                     else:
-                        moves.append(Move((r, c), (r + 1, c), self.board))
-                    if r == 1 and self.board[r+2][c] == "--":  # 2 square pawn advance
-                        moves.append(Move((r, c), (r+2, c), self.board))
-            #captures
-            if c-1 >= 0:  # captures to the left
-                if self.board[r+1][c-1][0] == 'w': #enemy piece to capture
-                    if not piecePinned or pinDirection == (1, -1):
-                        if r + 1 == 0:
-                            pawnPromotion = True
-                            moves.append(Move((r, c), (r+1, c-1), self.board, pawnPromotion=True))
+                        moves.append(Move((r, c), (r-1, c+1), self.board))
+
+            #capturing ONLY 1 jump for now
+            if c-2 >= 0: #captures to the left
+                if self.board[r-1][c-1][0] == "b":
+                    if self.board[r-2][c-2] == "--":
+                        if r - 2 == 0:
+                            piecePromotion = True
+                            moves.append(Move((r, c), (r-2, c-2), self.board, piecePromotion=True))
                         else:
-                            moves.append(Move((r, c), (r + 1, c - 1), self.board))
-                if (r + 1, c - 1) == self.enpassantPossible:
-                    moves.append(Move((r, c), (r + 1, c - 1), self.board, isEnpassantMove=True))
-            if c+1 <= 7:  # captures to the right
-                if self.board[r+1][c + 1][0] == 'w':  # enemy piece to capture
-                    if not piecePinned or pinDirection == (1, 1):
-                        if r + 1 == 0:
-                            pawnPromotion = True
-                            moves.append(Move((r, c), (r+1, c+1), self.board, pawnPromotion=True))
+                            moves.append(Move((r, c), (r-2, c-2), self.board))
+            if c+2 <= 7: #captures to the right
+                if self.board[r-1][c+1][0] == "b":
+                    if self.board[r-2][c+2] == "--":
+                        if r - 2 == 0:
+                            piecePromotion = True
+                            moves.append(Move((r, c), (r-2, c-2), self.board, piecePromotion=True))
                         else:
-                            moves.append(Move((r, c), (r + 1, c + 1), self.board))
-                if (r + 1, c + 1) == self.enpassantPossible:
-                    moves.append(Move((r, c), (r + 1, c + 1), self.board, isEnpassantMove=True))
+                            moves.append(Move((r, c), (r-2, c-2), self.board))
+
+        else:  # black checker moves
+            if c - 2 >= 0:
+                if self.board[r + 1][c - 1] == "--":  # black piece can advance left
+                    if r + 2 == 7:
+                        piecePromotion = True
+                        moves.append(Move((r, c), (r + 1, c - 1), self.board, piecePromotion))
+                    else:
+                        moves.append(Move((r, c), (r + 1, c - 1), self.board))
+            if c + 2 <= 7:
+                if self.board[r + 1][c + 1] == "--":  # red piece can advance right
+                    if r + 2 == 7:
+                        piecePromotion = True
+                        moves.append(Move((r, c), (r + 1, c + 1), self.board, piecePromotion))
+                    else:
+                        moves.append(Move((r, c), (r + 1, c + 1), self.board))
+
+            # capturing ONLY 1 jump for now
+            if c - 2 >= 0:  # captures to the left
+                if self.board[r + 1][c - 1][0] == "r":
+                    if self.board[r + 2][c - 2] == "--":
+                        if r + 2 == 7:
+                            piecePromotion = True
+                            moves.append(Move((r, c), (r + 2, c - 2), self.board, piecePromotion=True))
+                        else:
+                            moves.append(Move((r, c), (r + 2, c - 2), self.board))
+            if c + 2 <= 7:  # captures to the right
+                if self.board[r + 1][c + 1][0] == "r":
+                    if self.board[r + 2][c + 2] == "--":
+                        if r + 2 == 7:
+                            piecePromotion = True
+                            moves.append(Move((r, c), (r + 2, c - 2), self.board, piecePromotion=True))
+                        else:
+                            moves.append(Move((r, c), (r + 2, c - 2), self.board))
 
 class Move():
     # these dictionaries maps keys to values
@@ -191,18 +198,44 @@ class Move():
                    "e": 4, "f": 5, "g": 6, "h": 7}
     colsToFiles = {v: k for k, v in filesToCols.items()}
 
-    def __init__(self, startSq, endSq, board, isEnpassantMove = False, pawnPromotion = False, isCastleMove = False):
+    def __init__(self, startSq, endSq, board, isEnpassantMove = False, piecePromotion = False, isCastleMove = False):
         self.startRow = startSq[0]
         self.startCol = startSq[1]
         self.endRow = endSq[0]
         self.endCol = endSq[1]
         self.pieceMoved = board[self.startRow][self.startCol]
-        self.pieceCaptured = board[self.endRow][self.endCol]
+        #only 1 capture
+        if self.pieceMoved == 'rc':
+            #print("CAPTURE: ")
+            if self.startCol+2 == self.endCol: #if captured to the left
+                self.pieceCaptured = board[self.endRow-1][self.endCol+1]
+                self.capturedRow = self.startRow-1
+                self.capturedCol = self.startCol+1
+                #print("CAPTURE: ", self.pieceCaptured)
+            elif self.startCol-2 == self.endCol: #if captured to the right
+                self.pieceCaptured = board[self.endRow-1][self.endCol-1]
+                self.capturedRow = self.startRow - 1
+                self.capturedCol = self.startCol-1
+                #print("CAPTURE: ", self.pieceCaptured)
+            else:
+                self.pieceCaptured = ""
+        if self.pieceMoved == 'bc':
+            if self.startCol+2 == self.endCol: #if captured to the left
+                self.pieceCaptured = board[self.endRow+1][self.endCol-1]
+                self.capturedRow = self.startRow + 1
+                self.capturedCol = self.startCol-1
+            elif self.startCol-2 == self.endCol: #if captured to the right
+                self.pieceCaptured = board[self.endRow+1][self.endCol+1]
+                self.capturedRow = self.startRow + 1
+                self.capturedCol = self.startCol+1
+
+            else:
+                self.pieceCaptured = ""
         #pawn promotion
-        self.isPawnPromotion = ((self.pieceMoved == 'wp' and self.endRow == 0) or (self.pieceMoved == 'bp' and self.endRow == 7)) #will determine pawn promotion
+        self.isPiecePromotion = ((self.pieceMoved == 'wp' and self.endRow == 0) or (self.pieceMoved == 'bp' and self.endRow == 7)) #will determine pawn promotion
         #en passant
         self.isEnpassantMove = isEnpassantMove
-        self.pawnPromotion = pawnPromotion
+        self.piecePromotion = piecePromotion
         if self.isEnpassantMove:
             self.pieceCaptured = 'bp' if self.pieceMoved == 'wp' else 'wp'
         #castle move

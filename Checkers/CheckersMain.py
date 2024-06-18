@@ -34,9 +34,9 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
     gs = CheckersEngine.GameState()  # Calls the constructor CheckersEngine
-    #validMoves = gs.getValidMoves()
+    validMoves = gs.getValidMoves()
     moveMade = False #flag variable for when a move is made
-    animate = False #flag variable for when we should animate a move
+    #animate = False #flag variable for when we should animate a move
     loadImages()  # only do this once, before the while loop
     running = True
     sqSelected = () #no square is selected, keep track of the last click of the user (tuple: (row, col))
@@ -44,7 +44,7 @@ def main():
     gameOver = False
     playerOne = True #If a human is playing white, then this will be True. If an AI is playing, then False
     playerTwo = True #Same but for black pieces
-    drawGameState(screen, gs)  # draws the screen
+    drawGameState(screen, gs, validMoves, sqSelected)  # draws the screen
 
     while running:
         
@@ -54,7 +54,7 @@ def main():
                 running = False
             #mouse handler
             elif e.type == p.MOUSEBUTTONDOWN:
-                #print("PLAYER MOVE:")
+                print("PLAYER MOVE:")
                 if not gameOver and humanTurn:
                     location = p.mouse.get_pos()  # (x, y) location of mouse
                     col = location[0]//SQ_SIZE  # Uses double divides // to make sure it is rounded
@@ -83,14 +83,14 @@ def main():
                 if e.key == p.K_z: #undo when 'z' is pressed
                     gs.undoMove()
                     moveMade = True
-                    animate = False
+                    #animate = False
                 if e.key == p.K_r: #resets the board when 'r' is pressed
                     gs = CheckersEngine.GameState()
                     validMoves = gs.getValidMoves()
                     sqSelected = ()
                     playerClicks = []
                     moveMade = False
-                    animate = False
+                    #animate = False
 
         #AI move finder
         if not gameOver and not humanTurn:
@@ -101,16 +101,16 @@ def main():
                 AIMove = CheckersAI.findRandomMove(validMoves)
             gs.makeMove(AIMove)
             moveMade = True
-            animate = True
+            #animate = True
 
         if moveMade:
-            if animate:
-                animateMove(gs.moveLog[-1], screen, gs.board, clock)
+            #if animate:
+                #animateMove(gs.moveLog[-1], screen, gs.board, clock)
             validMoves = gs.getValidMoves()
             moveMade = False
-            animate = False
+            #animate = False
 
-        #drawGameState(screen, gs)  # draws the screen
+        drawGameState(screen, gs, validMoves, sqSelected)  # draws the screen
 
         #if gs.checkmate:
             #gameOver = True
@@ -122,18 +122,18 @@ def main():
             #gameOver = True
             #drawText(screen, 'Stalemate')
         
-        #clock.tick(MAX_FPS)
+        clock.tick(MAX_FPS)
         p.display.flip()
 
 
 '''
 Highlight square selected and moves for piece selected
 '''
-'''
+
 def highlightSquares(screen, gs, validMoves, sqSelected):
     if sqSelected != (): #square is not empty
         r, c = sqSelected
-        if gs.board[r][c][0] == ('w' if gs.whiteToMove else 'b'): #makes sure the square selected is a piece that can be moved
+        if gs.board[r][c][0] == ('r' if gs.redToMove else 'b'): #makes sure the square selected is a piece that can be moved
             #highlight selected square
             s = p.Surface((SQ_SIZE, SQ_SIZE))
             s.set_alpha(100) #transparency value --> 0 transparent; 255 solid
@@ -144,15 +144,14 @@ def highlightSquares(screen, gs, validMoves, sqSelected):
             for move in validMoves:
                 if move.startRow == r and move.startCol == c:
                     screen.blit(s, (move.endCol*SQ_SIZE, move.endRow*SQ_SIZE))
-'''
 
 '''
 Responsible for all the graphics within a current game state
 '''
 #def drawGameState(screen, gs, validMoves, sqSelected):
-def drawGameState(screen, gs):
+def drawGameState(screen, gs, validMoves, sqSelected):
     drawBoard(screen)  # draw squares on the board
-    #highlightSquares(screen, gs, validMoves, sqSelected)
+    highlightSquares(screen, gs, validMoves, sqSelected)
     drawPieces(screen, gs.board)  # draw pieces on top of those squares
 
 
@@ -182,6 +181,7 @@ def drawPieces(screen, board): #Separated the two functions to highlight pieces
 '''
 Animating a move
 '''
+'''
 def animateMove(move, screen, board, clock):
     global colors
     dR = move.endRow - move.startRow
@@ -203,6 +203,7 @@ def animateMove(move, screen, board, clock):
         screen.blit(IMAGES[move.pieceMoved], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
         p.display.flip()
         clock.tick(200)
+'''
 
 def drawText(screen, text):
     font = p.font.SysFont("Times New Roman", 32, True, False)
