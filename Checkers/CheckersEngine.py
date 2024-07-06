@@ -37,7 +37,7 @@ class GameState():
 
     def makeMove(self, move):
         if self.board[move.startRow][move.startCol] != '--':
-            self.board[move.startRow][move.startCol] = "--"
+            self.board[move.startRow][move.startCol] = '--'
             if move.pieceCaptured != "": #FIX
                 self.board[move.capturedRow][move.capturedCol] = "--"
                 print("CAPTURED: ", move.capturedRow, move.capturedCol, move.pieceCaptured)
@@ -78,7 +78,7 @@ class GameState():
 
         # prints list of valid moves
         for i in range(len(moves)):
-            print("VALID: ", moves[i].startRow, moves[i].startCol, moves[i].endRow, moves[i].endCol)
+            print("VALID: ", moves[i].startRow, moves[i].startCol, moves[i].endRow, moves[i].endCol, "DONE")
         #if moves == []:
             #if self.inCheck:
                 #self.checkmate = True
@@ -98,6 +98,7 @@ class GameState():
                 turn = self.board[r][c][0]  # returns the first letter of what is in the current square
                 if (turn == 'r' and self.redToMove) or (turn == 'b' and not self.redToMove):
                     piece = self.board[r][c][1]
+                    multiple = 0 #how many times a piece can capture
                     #instead of doing a lot of if statements, you can make a dictionary
                     # if piece == 'p':
                     #     self.getPawnMoves(r, c, moves)
@@ -111,14 +112,14 @@ class GameState():
                     #     self.getQueenMoves(r, c, moves)
                     # elif piece == 'K':
                     #     self.getKingMoves(r, c, moves)
-                    self.moveFunctions[piece](r, c, moves) #calls the appropriate move function based on piece types
+                    self.moveFunctions[piece](r, c, moves, multiple) #calls the appropriate move function based on piece types
         return moves
 
     '''
     Get all the pawn moves for the pawn located at row, col, and add these moves to the list
     '''
 
-    def getCheckerMoves(self, r, c, moves): # FIX METHOD
+    def getCheckerMoves(self, r, c, moves, multiple): # FIX METHOD
 
         if self.redToMove: #red checker moves
             if c-1 >= 0:
@@ -137,34 +138,38 @@ class GameState():
                         moves.append(Move((r, c), (r-1, c+1), self.board))
 
             #capturing ONLY 1 jump for now
-            if c-2 >= 0: #captures to the left
-                if self.board[r-1][c-1][0] == "b":
-                    if self.board[r-2][c-2] == "--":
-                        if r - 2 == 0:
+            if c-multiple-2 >= 0: #captures to the left
+                if self.board[r-multiple-1][c-multiple-1][0] == "b":
+                    if r-multiple-2 >= 0 and self.board[r-multiple-2][c-multiple-2] == "--":
+                        if r - multiple - 2 == 0:
                             piecePromotion = True
-                            moves.append(Move((r, c), (r-2, c-2), self.board, piecePromotion=True))
-                        else:
-                            moves.append(Move((r, c), (r-2, c-2), self.board))
+                            moves.append(Move((r, c), (r-multiple-2, c-multiple-2), self.board, piecePromotion=True))
+                        else: #FIX CAPTURING MULTIPLE PIECES
+                            moves.append(Move((r, c), (r - multiple - 2, c - multiple - 2), self.board))
+                            multiple = multiple+2
+                            self.getCheckerMoves(r, c, moves, multiple)
+                            for i in range(len(moves)):
+                                print("VALID: ", moves[i].startRow, moves[i].startCol, moves[i].endRow, moves[i].endCol)
             if c+2 <= 7: #captures to the right
                 if self.board[r-1][c+1][0] == "b":
-                    if self.board[r-2][c+2] == "--":
+                    if r-2 >= 0 and self.board[r-2][c+2] == "--":
                         if r - 2 == 0:
                             piecePromotion = True
-                            moves.append(Move((r, c), (r-2, c-2), self.board, piecePromotion=True))
+                            moves.append(Move((r, c), (r-2, c+2), self.board, piecePromotion=True))
                         else:
-                            moves.append(Move((r, c), (r-2, c-2), self.board))
+                            moves.append(Move((r, c), (r-2, c+2), self.board))
 
         else:  # black checker moves
-            if c - 2 >= 0:
+            if c - 1 >= 0:
                 if self.board[r + 1][c - 1] == "--":  # black piece can advance left
-                    if r + 2 == 7:
+                    if r + 1 == 7:
                         piecePromotion = True
                         moves.append(Move((r, c), (r + 1, c - 1), self.board, piecePromotion))
                     else:
                         moves.append(Move((r, c), (r + 1, c - 1), self.board))
-            if c + 2 <= 7:
-                if self.board[r + 1][c + 1] == "--":  # red piece can advance right
-                    if r + 2 == 7:
+            if c + 1 <= 7:
+                if self.board[r + 1][c + 1] == "--":  # black piece can advance right
+                    if r + 1 == 7:
                         piecePromotion = True
                         moves.append(Move((r, c), (r + 1, c + 1), self.board, piecePromotion))
                     else:
@@ -173,7 +178,7 @@ class GameState():
             # capturing ONLY 1 jump for now
             if c - 2 >= 0:  # captures to the left
                 if self.board[r + 1][c - 1][0] == "r":
-                    if self.board[r + 2][c - 2] == "--":
+                    if r+2 >= 0 and self.board[r + 2][c - 2] == "--":
                         if r + 2 == 7:
                             piecePromotion = True
                             moves.append(Move((r, c), (r + 2, c - 2), self.board, piecePromotion=True))
@@ -181,12 +186,12 @@ class GameState():
                             moves.append(Move((r, c), (r + 2, c - 2), self.board))
             if c + 2 <= 7:  # captures to the right
                 if self.board[r + 1][c + 1][0] == "r":
-                    if self.board[r + 2][c + 2] == "--":
+                    if r+2 >= 0 and self.board[r + 2][c + 2] == "--":
                         if r + 2 == 7:
                             piecePromotion = True
-                            moves.append(Move((r, c), (r + 2, c - 2), self.board, piecePromotion=True))
+                            moves.append(Move((r, c), (r + 2, c + 2), self.board, piecePromotion=True))
                         else:
-                            moves.append(Move((r, c), (r + 2, c - 2), self.board))
+                            moves.append(Move((r, c), (r + 2, c + 2), self.board))
 
 class Move():
     # these dictionaries maps keys to values
@@ -207,27 +212,27 @@ class Move():
         #only 1 capture
         if self.pieceMoved == 'rc':
             #print("CAPTURE: ")
-            if self.startCol+2 == self.endCol: #if captured to the left
-                self.pieceCaptured = board[self.endRow-1][self.endCol+1]
-                self.capturedRow = self.startRow-1
-                self.capturedCol = self.startCol+1
-                #print("CAPTURE: ", self.pieceCaptured)
-            elif self.startCol-2 == self.endCol: #if captured to the right
-                self.pieceCaptured = board[self.endRow-1][self.endCol-1]
+            if self.startCol-2 == self.endCol: #if captured to the left
                 self.capturedRow = self.startRow - 1
-                self.capturedCol = self.startCol-1
+                self.capturedCol = self.startCol - 1
+                self.pieceCaptured = board[self.capturedRow][self.capturedCol]
+                #print("CAPTURE: ", self.pieceCaptured)
+            elif self.startCol+2 == self.endCol: #if captured to the right
+                self.capturedRow = self.startRow - 1
+                self.capturedCol = self.startCol + 1
+                self.pieceCaptured = board[self.capturedRow][self.capturedCol]
                 #print("CAPTURE: ", self.pieceCaptured)
             else:
                 self.pieceCaptured = ""
         if self.pieceMoved == 'bc':
-            if self.startCol+2 == self.endCol: #if captured to the left
-                self.pieceCaptured = board[self.endRow+1][self.endCol-1]
+            if self.startCol-2 == self.endCol: #if captured to the left
                 self.capturedRow = self.startRow + 1
-                self.capturedCol = self.startCol-1
-            elif self.startCol-2 == self.endCol: #if captured to the right
-                self.pieceCaptured = board[self.endRow+1][self.endCol+1]
+                self.capturedCol = self.startCol - 1
+                self.pieceCaptured = board[self.capturedRow][self.capturedCol]
+            elif self.startCol+2 == self.endCol: #if captured to the right
                 self.capturedRow = self.startRow + 1
-                self.capturedCol = self.startCol+1
+                self.capturedCol = self.startCol + 1
+                self.pieceCaptured = board[self.capturedRow][self.capturedCol]
 
             else:
                 self.pieceCaptured = ""
